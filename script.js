@@ -88,37 +88,42 @@ function renderDailyBouquet(){
   ];
   const [petalColor, centerColor, stemColor, potMain, potTop] = pick(rng, palettes);
 
-  // Bouquet size (2–4)
-  const count = 2 + Math.floor(rng() * 3);
+  // Bouquet size (3–4 looks nicest for overlap control)
+  const count = 3 + Math.floor(rng() * 2); // 3..4
 
-  // Base X positions (spread)
-  const baseXs = [150, 180, 210, 240];
+  // Wider spread to avoid overlaps
+  const baseXs = [130, 170, 210, 250];
 
   let stems = "";
   let blooms = "";
 
   for (let i = 0; i < count; i++){
     const baseX = baseXs[i];
-    const x = baseX + rand(rng, -10, 10);
 
-    // Stem end point = where bloom MUST attach
-    const endX = clamp(x + rand(rng, -8, 8), 90, 270);
-    const endY = 95 + rand(rng, -10, 12);
+    // Less side wobble for cleanliness
+    const x = baseX + rand(rng, -6, 6);
+
+    // Stem end point (staggered height per flower to reduce overlap)
+    const endX = clamp(x + rand(rng, -10, 10), 90, 270);
+    const endY = 88 + (i * 7) + rand(rng, -6, 6);
 
     // Curve control points
-    const c1x = x + rand(rng, -18, 10);
-    const c1y = 165;
-    const c2x = x + rand(rng, -10, 18);
-    const c2y = 125;
+    const c1x = x + rand(rng, -20, 10);
+    const c1y = 168;
+    const c2x = x + rand(rng, -10, 20);
+    const c2y = 128;
 
-    const stemW = rand(rng, 7.5, 10.5);
+    const stemW = rand(rng, 7.5, 10.0);
 
     // Petals per flower (6–10)
     const petalsCount = 6 + Math.floor(rng() * 5);
 
-    // Slight variation in petal size per flower
-    const rx = rand(rng, 15, 20);
-    const ry = rand(rng, 28, 38);
+    // Slightly smaller petals to keep bouquet readable
+    const rx = rand(rng, 14, 18);
+    const ry = rand(rng, 26, 34);
+
+    // Optional tiny rotation difference per flower
+    const tilt = rand(rng, -8, 8);
 
     let petalsSVG = "";
     for (let p = 0; p < petalsCount; p++){
@@ -141,14 +146,15 @@ function renderDailyBouquet(){
         stroke-linecap="round"/>
     `;
 
+    // Safari-safe: outer group translates, inner group scales
     blooms += `
-  <g transform="translate(${bloomTx.toFixed(1)} ${bloomTy.toFixed(1)})">
-    <g class="bloomScale">
-      <g class="petals">${petalsSVG}</g>
-      <circle class="center" cx="35" cy="35" r="14" fill="${centerColor}"/>
-    </g>
-  </g>
-`;
+      <g transform="translate(${bloomTx.toFixed(1)} ${bloomTy.toFixed(1)}) rotate(${tilt.toFixed(1)} 35 35)">
+        <g class="bloomScale">
+          <g class="petals">${petalsSVG}</g>
+          <circle class="center" cx="35" cy="35" r="14" fill="${centerColor}"/>
+        </g>
+      </g>
+    `;
   }
 
   // Pot position
