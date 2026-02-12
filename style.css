@@ -114,7 +114,7 @@ h2{
   animation:draw 1.6s ease forwards;
 }
 
-.bloom{
+.bloomScale{
   transform-origin:35px 35px;
   transform:scale(0);
   animation:bloom 1s ease 1.3s forwards;
