@@ -142,11 +142,13 @@ function renderDailyBouquet(){
     `;
 
     blooms += `
-      <g class="bloom" transform="translate(${bloomTx.toFixed(1)} ${bloomTy.toFixed(1)})">
-        <g class="petals">${petalsSVG}</g>
-        <circle class="center" cx="35" cy="35" r="14" fill="${centerColor}"/>
-      </g>
-    `;
+  <g transform="translate(${bloomTx.toFixed(1)} ${bloomTy.toFixed(1)})">
+    <g class="bloomScale">
+      <g class="petals">${petalsSVG}</g>
+      <circle class="center" cx="35" cy="35" r="14" fill="${centerColor}"/>
+    </g>
+  </g>
+`;
   }
 
   // Pot position
