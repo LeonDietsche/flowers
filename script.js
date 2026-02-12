@@ -2,7 +2,6 @@ const openBtn = document.getElementById('openBtn');
 const closeBtn = document.getElementById('closeBtn');
 const front = document.getElementById('front');
 const inside = document.getElementById('inside');
-const shareBtn = document.getElementById('shareBtn');
 
 openBtn.onclick = () => {
   front.hidden = true;
@@ -12,20 +11,6 @@ openBtn.onclick = () => {
 closeBtn.onclick = () => {
   inside.hidden = true;
   front.hidden = false;
-};
-
-shareBtn.onclick = async (e) => {
-  e.preventDefault();
-  if(navigator.share){
-    await navigator.share({
-      title:"flowers 🌷",
-      text:"open this",
-      url:location.href
-    });
-  } else {
-    await navigator.clipboard.writeText(location.href);
-    shareBtn.textContent="Link copied";
-  }
 };
 
 /* DAILY SEEDED FLOWER */
