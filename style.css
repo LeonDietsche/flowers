@@ -1,46 +1,86 @@
+/* ===== Base Layout ===== */
+
 body{
   margin:0;
-  font-family:-apple-system,system-ui;
+  font-family:-apple-system, system-ui, BlinkMacSystemFont, sans-serif;
   background:linear-gradient(180deg,#0f172a,#1e1b4b);
   color:white;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:100vh;
+  min-height:100vh;
+  padding:20px;
+}
+
+.wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
 }
 
 .card{
-  width:90%;
+  width:100%;
   max-width:420px;
   background:#ffffff10;
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(14px);
   padding:30px;
-  border-radius:20px;
+  border-radius:22px;
   text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  box-shadow:0 25px 70px rgba(0,0,0,.45);
+  position:relative;
 }
+
+/* ===== Text ===== */
 
 .tiny{
   font-size:12px;
   opacity:.7;
   letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+h1{
+  font-size:48px;
+  margin:10px 0;
+}
+
+h2{
+  margin:10px 0 15px 0;
 }
 
 .msg{
   font-size:16px;
   line-height:1.5;
-  margin-bottom:20px;
+  margin-bottom:25px;
+}
+
+#dailyCaption{
+  margin-top:15px;
+  font-size:14px;
+  opacity:.85;
+}
+
+/* ===== Buttons ===== */
+
+.actions{
+  margin-top:20px;
 }
 
 .btn{
   background:linear-gradient(90deg,#ff5ea8,#ffd166);
   border:none;
-  padding:12px 20px;
+  padding:12px 22px;
   border-radius:999px;
   font-weight:bold;
   cursor:pointer;
   color:#111;
   margin:5px;
+  font-size:15px;
+  transition:transform .2s ease, opacity .2s ease;
+}
+
+.btn:active{
+  transform:scale(.96);
 }
 
 .btn.ghost{
@@ -49,30 +89,73 @@ body{
   color:white;
 }
 
-#dailyCaption{
+/* ===== Flower Container ===== */
+
+#flowerStage{
+  width:100%;
+  display:flex;
+  justify-content:center;
   margin-top:10px;
-  font-size:14px;
-  opacity:.9;
 }
 
-/* flower animations */
-.stem{
-  stroke-dasharray:260;
-  stroke-dashoffset:260;
-  animation:draw 1.5s ease forwards;
+/* Critical fix: keeps SVG perfectly centered */
+#flowerStage svg{
+  width:100%;
+  max-width:360px;
+  height:auto;
+  display:block;
 }
+
+/* ===== Flower Animations ===== */
+
+.stem{
+  stroke-dasharray:300;
+  stroke-dashoffset:300;
+  animation:draw 1.6s ease forwards;
+}
+
 .bloom{
   transform-origin:35px 35px;
   transform:scale(0);
-  animation:bloom 1s ease 1.2s forwards;
+  animation:bloom 1s ease 1.3s forwards;
 }
 
-#flowerStage svg{
-  width:100%;
-  height:auto;
-  display:block;
-  margin: 0 auto;
+.petals{
+  transform-origin:35px 35px;
+  animation:sway 3s ease-in-out infinite;
 }
 
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes bloom{to{transform:scale(1)}}
+.center{
+  animation:pulse 2.5s ease-in-out infinite;
+}
+
+/* ===== Keyframes ===== */
+
+@keyframes draw{
+  to{stroke-dashoffset:0;}
+}
+
+@keyframes bloom{
+  to{transform:scale(1);}
+}
+
+@keyframes sway{
+  0%,100%{transform:rotate(-3deg);}
+  50%{transform:rotate(3deg);}
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+}
+
+/* ===== Open / Close Animation ===== */
+
+.reveal{
+  animation:pop .4s ease both;
+}
+
+@keyframes pop{
+  0%{transform:scale(.96); opacity:0;}
+  100%{transform:scale(1); opacity:1;}
+}
