@@ -1,189 +1,90 @@
-// ---------- Open / Close ----------
-const openBtn  = document.getElementById('openBtn');
-const closeBtn = document.getElementById('closeBtn');
-const front    = document.getElementById('front');
-const inside   = document.getElementById('inside');
+const openBtn = document.getElementById("openBtn");
+const closeBtn = document.getElementById("closeBtn");
+const front = document.getElementById("front");
+const inside = document.getElementById("inside");
+const flowerStage = document.getElementById("flowerStage");
+
+function showPanel(panelToShow, panelToHide){
+  panelToHide.hidden = true;
+  panelToShow.hidden = false;
+  panelToShow.classList.remove("reveal");
+  void panelToShow.offsetWidth;
+  panelToShow.classList.add("reveal");
+}
 
 function openCard(){
-  front.hidden = true;
-  inside.hidden = false;
-  inside.classList.remove('reveal');
-  void inside.offsetWidth;
-  inside.classList.add('reveal');
+  showPanel(inside, front);
 }
 
 function closeCard(){
-  inside.hidden = true;
-  front.hidden = false;
-  front.classList.remove('reveal');
-  void front.offsetWidth;
-  front.classList.add('reveal');
+  showPanel(front, inside);
 }
 
-openBtn?.addEventListener('click', openCard);
-closeBtn?.addEventListener('click', closeCard);
-
-// ---------- Daily seeded RNG ----------
-function todayKey(){
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const da = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${da}`;
-}
-
-// FNV-1a-ish hash -> 32-bit
-function hash32(str){
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++){
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+function renderWiltedFlower(){
+  if (!flowerStage){
+    return;
   }
-  return h >>> 0;
-}
 
-// Mulberry32 RNG
-function rngFromSeed(seed){
-  return function(){
-    let t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+  flowerStage.innerHTML = `
+    <svg viewBox="0 0 360 320" aria-label="A wilted flower in a cracked pot">
+      <defs>
+        <linearGradient id="stemShade" x1="0%" x2="0%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="#61714b"/>
+          <stop offset="100%" stop-color="#39422f"/>
+        </linearGradient>
+        <linearGradient id="petalShade" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="#96705a"/>
+          <stop offset="100%" stop-color="#5b4136"/>
+        </linearGradient>
+        <linearGradient id="potShade" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="#8e6048"/>
+          <stop offset="100%" stop-color="#5f3b2f"/>
+        </linearGradient>
+      </defs>
 
-function pick(rng, arr){
-  return arr[Math.floor(rng() * arr.length)];
-}
-function rand(rng, min, max){
-  return rng() * (max - min) + min;
-}
-function clamp(n, a, b){
-  return Math.max(a, Math.min(b, n));
-}
-
-// ---------- Render daily bouquet ----------
-function renderDailyBouquet(){
-  const stage = document.getElementById('flowerStage');
-  const cap   = document.getElementById('dailyCaption');
-  if (!stage) return;
-
-  const key  = todayKey();
-  const rng  = rngFromSeed(hash32(key));
-
-  // Keep your exact messages ✅
-  const messages=[
-    "Juhu, es Blüemli für dii",
-    "Es Strüssli bis ich izrugg bi",
-    "Das isch diis hütigs Blüeml",
-    "Daily, Blüemli"
-  ];
-
-  // Palettes: [petal, center, stem, potMain, potTop]
-  const palettes = [
-    ["#ff5ea8", "#ffd166", "#16a34a", "#8b5e3c", "#6f4427"],
-    ["#fb7185", "#fde047", "#15803d", "#7a4a2b", "#5b331c"],
-    ["#a855f7", "#fbbf24", "#166534", "#8b5e3c", "#6f4427"],
-    ["#4cc9f0", "#ffd166", "#15803d", "#7a4a2b", "#5b331c"],
-  ];
-  const [petalColor, centerColor, stemColor, potMain, potTop] = pick(rng, palettes);
-
-  // Bouquet size (3–4 looks nicest for overlap control)
-  const count = 3 + Math.floor(rng() * 2); // 3..4
-
-  // Wider spread to avoid overlaps
-  const baseXs = [130, 170, 210, 250];
-
-  let stems = "";
-  let blooms = "";
-
-  for (let i = 0; i < count; i++){
-    const baseX = baseXs[i];
-
-    // Less side wobble for cleanliness
-    const x = baseX + rand(rng, -6, 6);
-
-    // Stem end point (staggered height per flower to reduce overlap)
-    const endX = clamp(x + rand(rng, -10, 10), 90, 270);
-    const endY = 88 + (i * 7) + rand(rng, -6, 6);
-
-    // Curve control points
-    const c1x = x + rand(rng, -20, 10);
-    const c1y = 168;
-    const c2x = x + rand(rng, -10, 20);
-    const c2y = 128;
-
-    const stemW = rand(rng, 7.5, 10.0);
-
-    // Petals per flower (6–10)
-    const petalsCount = 6 + Math.floor(rng() * 5);
-
-    // Slightly smaller petals to keep bouquet readable
-    const rx = rand(rng, 14, 18);
-    const ry = rand(rng, 26, 34);
-
-    // Optional tiny rotation difference per flower
-    const tilt = rand(rng, -8, 8);
-
-    let petalsSVG = "";
-    for (let p = 0; p < petalsCount; p++){
-      const angle = (360 / petalsCount) * p + rand(rng, -6, 6);
-      petalsSVG += `
-        <ellipse cx="35" cy="35" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}"
-          fill="${petalColor}"
-          transform="rotate(${angle.toFixed(1)} 35 35)"/>
-      `;
-    }
-
-    // ✅ Anchor bloom to stem tip
-    const bloomTx = endX - 35;
-    const bloomTy = endY - 35;
-
-    stems += `
-      <path class="stem"
-        d="M${x.toFixed(1)} 220 C${c1x.toFixed(1)} ${c1y} ${c2x.toFixed(1)} ${c2y} ${endX.toFixed(1)} ${endY.toFixed(1)}"
-        fill="none" stroke="${stemColor}" stroke-width="${stemW.toFixed(1)}"
+      <ellipse cx="180" cy="292" rx="108" ry="14" fill="rgba(0,0,0,0.18)"/>
+      <path class="stem-path"
+        d="M180 246 C180 216, 176 188, 195 160 C205 145, 211 134, 208 116"
+        fill="none"
+        stroke="url(#stemShade)"
+        stroke-width="8"
         stroke-linecap="round"/>
-    `;
+      <path
+        d="M170 208 C153 196, 149 180, 162 165"
+        fill="none"
+        stroke="#51613f"
+        stroke-width="6"
+        stroke-linecap="round"/>
+      <path
+        d="M188 186 C206 176, 214 164, 211 145"
+        fill="none"
+        stroke="#4b5939"
+        stroke-width="6"
+        stroke-linecap="round"/>
 
-    // Safari-safe: outer group translates, inner group scales
-    blooms += `
-      <g transform="translate(${bloomTx.toFixed(1)} ${bloomTy.toFixed(1)}) rotate(${tilt.toFixed(1)} 35 35)">
-        <g class="bloomScale">
-          <g class="petals">${petalsSVG}</g>
-          <circle class="center" cx="35" cy="35" r="14" fill="${centerColor}"/>
-        </g>
+      <g class="head">
+        <circle cx="209" cy="121" r="13" fill="#6d563f"/>
+        <ellipse cx="185" cy="113" rx="18" ry="42" fill="url(#petalShade)" transform="rotate(-66 185 113)"/>
+        <ellipse cx="194" cy="133" rx="17" ry="36" fill="#745446" transform="rotate(-29 194 133)"/>
+        <ellipse cx="224" cy="114" rx="17" ry="36" fill="#66493b" transform="rotate(18 224 114)"/>
+        <ellipse cx="232" cy="136" rx="15" ry="33" fill="#5f4438" transform="rotate(45 232 136)"/>
+        <ellipse cx="214" cy="149" rx="14" ry="28" fill="#806153" transform="rotate(85 214 149)"/>
       </g>
-    `;
-  }
 
-  // Pot position
-  const potX = 110, potY = 220, potW = 140, potH = 60;
+      <ellipse cx="147" cy="266" rx="17" ry="9" fill="#6a4c3d" class="petal-fall"/>
+      <ellipse cx="217" cy="275" rx="14" ry="8" fill="#7f6050" class="petal-fall delay"/>
 
-  stage.innerHTML = `
-  <svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid meet" aria-label="Daily bouquet">
-    ${stems}
-    ${blooms}
-
-    <!-- pot -->
-    <rect x="${potX}" y="${potY}" width="${potW}" height="${potH}" rx="12" fill="${potMain}"/>
-    <rect x="${potX+10}" y="${potY-5}" width="${potW-20}" height="18" rx="9" fill="${potTop}" opacity="0.95"/>
-
-    <!-- name -->
-    <text x="180" y="${potY+36}"
-      font-size="16"
-      text-anchor="middle"
-      fill="white"
-      font-family="system-ui">
-      Veronika
-    </text>
-  </svg>
+      <path d="M122 228 h116 l-14 56 h-88 z" fill="url(#potShade)"/>
+      <path d="M116 218 h128 a10 10 0 0 1 10 10 v2 h-148 v-2 a10 10 0 0 1 10-10z" fill="#704939"/>
+      <path d="M177 228 l-14 25 l24 19 l-16 12" fill="none" stroke="#3f261f" stroke-width="3" stroke-linecap="round"/>
+      <text x="180" y="255" text-anchor="middle" fill="#f4e4d7" font-size="15" font-family="Georgia, serif">
+        
+      </text>
+    </svg>
   `;
-
-  if (cap){
-    cap.textContent = `${pick(rng, messages)} • ${key}`;
-  }
 }
 
-// Render on load
-renderDailyBouquet();
+openBtn?.addEventListener("click", openCard);
+closeBtn?.addEventListener("click", closeCard);
+
+renderWiltedFlower();
